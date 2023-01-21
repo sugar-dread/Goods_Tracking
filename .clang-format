@@ -1,0 +1,13 @@
+BasedOnStyle: Google
+SortIncludes: true
+IndentWidth: 2
+ColumnLimit: 200
+IncludeBlocks: Preserve
+PointerAlignment: Left
+SpaceBeforeAssignmentOperators: true
+AlignAfterOpenBracket: true
+SpaceBeforeCpp11BracedList: true
+Cpp11BracedListStyle: false
+SpacesInParentheses: true
+SpacesInAngles: false
+DerivePointerAlignment: false

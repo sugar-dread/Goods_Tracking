@@ -1,0 +1,21 @@
+Checks: >
+    -*,
+    bugprone",
+    clang-analyzer-*,
+    cppcoreguidelines-*,
+    google-*,
+    performance-*,
+    portability-*,
+    readability-*
+
+
+# WarningsAsErrors: "*"
+
+CheckOptions:
+  - { key: readability-identifier-naming.PrivateMemberPrefix,    value: m_         }
+  - { key: readability-identifier-naming.ProtectedMemberPrefix,  value: m_         }
+  - { key: readability-identifier-naming.MacroDefinitionCase,    value: UPPER_CASE }
+  - { key: readability-identifier-naming.EnumConstantCase,       value: UPPER_CASE }
+  - { key: readability-identifier-naming.MinimumVariableNameLength,value: 1     } 
+  - { key: readability-identifier-naming.MinimumParameterNameLength,value: 1     } 
+  
