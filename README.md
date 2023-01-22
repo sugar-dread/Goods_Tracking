@@ -18,3 +18,5 @@ In this API, SQLite3 light database is used. Thanks to Sébastien Rombauts work 
 sudo apt-get install libsqlite3-dev
 
 sudo apt-get install rapidjson-dev
+
+sudo apt-get install libcurl4-openssl-dev

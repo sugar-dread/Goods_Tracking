@@ -14,6 +14,8 @@ source_group(Src FILES ${GoodsTrack_SRC})
 
 set(GoodsTrack_INC
     ${PROJECT_SOURCE_DIR}/Inc/goods_track.h
+    ${PROJECT_SOURCE_DIR}/Inc/menu_utility.h
+    ${PROJECT_SOURCE_DIR}/Inc/colorprint.h
 )
 
 source_group(Inc FILES ${GoodsTrack_INC})
@@ -27,4 +29,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 find_package(RapidJSON REQUIRED)
 find_package(OpenSSL REQUIRED)
-target_link_libraries(${PROJECT_NAME} SQLiteCpp rapidjson OpenSSL::Crypto)
+find_package(CURL REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} SQLiteCpp rapidjson OpenSSL::Crypto curl)
