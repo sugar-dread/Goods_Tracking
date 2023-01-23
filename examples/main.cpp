@@ -2,6 +2,8 @@
 #include <utility>
 #include "menu_utility.h"
 
+using namespace GoodsTrack;
+
 int main() {
   std::cout << "GCC version: " << __VERSION__ << std::endl;
 
@@ -13,12 +15,12 @@ int main() {
   while ( true ) {
     try {
       if ( !pass ) {
-        print_good_db( db, obj );
+        print_good_db( obj );
         pass = false;
       }
 
       display_db_selection();
-      int choice;
+      int choice {};
       std::cin >> choice;
 
       switch ( choice ) {
@@ -29,7 +31,7 @@ int main() {
           std::transform( goods_symb.begin(), goods_symb.end(), goods_symb.begin(), ::toupper );
 
           std::cout << "Please, enter the amount for " << goods_symb << " : ";
-          double goods_amount;
+          double goods_amount {};
           std::cin >> goods_amount;
           obj.add_goods( obj.create_goods( goods_symb, goods_amount ) );
           std::cout << BOLD( FGRN( "Added to " << db_name << " database\n" ) );
@@ -37,11 +39,11 @@ int main() {
         }
         case 2: {
           std::cout << "Please, enter the id of goods to update: ";
-          int goods_id;
+          int goods_id {};
           std::cin >> goods_id;
 
           std::cout << "Please, enter the amount for " << goods_id << " : ";
-          double goods_amount;
+          double goods_amount {};
           std::cin >> goods_amount;
           obj.update_with_id( goods_id, goods_amount );
           std::cout << BOLD( FGRN( "Update id " << goods_id << " in database\n" ) );
@@ -49,7 +51,7 @@ int main() {
         }
         case 3: {
           std::cout << "Please, enter the id of goods to delete: ";
-          int goods_id;
+          int goods_id {};
           std::cin >> goods_id;
 
           obj.delete_with_id( goods_id );
@@ -68,7 +70,7 @@ int main() {
           std::cin >> goods_symb;
           std::transform( goods_symb.begin(), goods_symb.end(), goods_symb.begin(), ::toupper );
 
-          print_good_db( db, obj, goods_symb );
+          print_good_db( obj, goods_symb );
           pass = true;
           break;
         }
@@ -87,6 +89,4 @@ int main() {
       std::cout << BOLD( FRED( "Please, try again!!!\n" ) );
     }
   }
-
-  return 0;
 }

@@ -16,6 +16,8 @@
 
 namespace GoodsTrack {
 
+constexpr double OUNCE_GRAM { 31.1034768 };
+
 SQLite::Database open_goods_database( const std::string& file_name ) {
   auto exist_flag { false };
   if ( std::filesystem::exists( getProjectCurrentPath() + "/" + file_name ) ) {
@@ -147,7 +149,7 @@ void GoodsManager::update_with_id( int id, double amount ) const {
 
   SQLite::Statement queryCheck { m_Database, get_goods_by_id.str() };
 
-  double get_price;
+  double get_price {};
   auto result { false };
   while ( queryCheck.executeStep() ) {
     if ( id == queryCheck.getColumn( 0 ).getInt() ) {
@@ -247,8 +249,6 @@ rapidjson::Document GoodsManager::get_goods_values_from_yahoo_finance( std::stri
   curl_easy_cleanup( curl );
   curl_global_cleanup();
 
-  // std::cout << response << '\n';
-
   rapidjson::Document doc;
   doc.SetObject();
 
@@ -299,19 +299,19 @@ void GoodsManager::update_goods_prices() const {
       const rapidjson::Value& obj = goods_val["quoteResponse"]["result"].GetArray()[0];
 
       if ( obj.HasMember( elem.getName().c_str() ) ) {
-        throw SQLite::Exception( "there is no valid symbol " + std::string( elem.getName() ) );
+        throw SQLite::Exception( "there is no valid symbol " + elem.getName() );
       }
 
       if ( obj.HasMember( "regularMarketPrice" ) ) {
         if ( ( std::string( obj["symbol"].GetString() ) == "SI=F" ) || ( std::string( obj["symbol"].GetString() ) == "GC=F" ) ) {
-          price = obj["regularMarketPrice"].GetDouble() / 31.1034768;
+          price = obj["regularMarketPrice"].GetDouble() / OUNCE_GRAM;
         } else {
           price = obj["regularMarketPrice"].GetDouble();
         }
       }
 
       if ( obj.HasMember( elem.getCurrency().c_str() ) ) {
-        throw SQLite::Exception( "there is no valid currency " + std::string( elem.getCurrency() ) );
+        throw SQLite::Exception( "there is no valid currency " + elem.getCurrency() );
       }
       update_goods_by_all << "UPDATE " << m_TableName << " SET price=" << price << ", total='" << std::to_string( amount * price ) << "' WHERE id='" << elem.getId() << "'";
 

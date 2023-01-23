@@ -14,9 +14,16 @@ The application creates or open goods database when runs. With menu, you can do 
 ## SQLite3Cpp
 In this API, SQLite3 light database is used. Thanks to Sébastien Rombauts work ([SRombauts](https://github.com/SRombauts)), I used his SQLite3 CPP wrapper library. He explained well how to use it in this [link](https://github.com/SRombauts/SQLiteCpp).
 
+## Required Libraries
 
-sudo apt-get install libsqlite3-dev
+SQLiteCpp library wrap C sqlite3 lib. In order to use and compile, C sqlite3 library should be intalled. With dev package, sqlite3 C header can be included for development purporse.
 
-sudo apt-get install rapidjson-dev
+`sudo apt-get install libsqlite3-dev`
 
-sudo apt-get install libcurl4-openssl-dev
+Yahoo finance sends back json format response. Rapidjson is a JSON parser library. In order to parse yahoo finance response, rapidjson development package should be installed.
+
+`sudo apt-get install rapidjson-dev`
+
+cURL is a command-line tool and library for transferring data with URLs. It supports various protocols such as HTTP, HTTPS, FTP, SFTP, and more. cURL is commonly used to make HTTP requests from the command line, but it can also be used in programs and scripts, making it a versatile tool for working with web services and APIs. This API uses HTTP request to yahoo finance website.
+
+`sudo apt-get install libcurl4-openssl-dev`

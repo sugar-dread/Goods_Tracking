@@ -137,5 +137,5 @@ TEST_F( GoodsTrackTest, GetTotalWealth ) {
 
   obj.calculate_total_wealth( "USD" );
 
-  print_good_db( db, obj, "TRY" );
+  print_good_db( obj, "TRY" );
 }

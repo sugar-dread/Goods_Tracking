@@ -9,7 +9,7 @@
 #include "colorprint.h"
 #include "goods_track.h"
 
-using namespace GoodsTrack;
+namespace GoodsTrack {
 
 constexpr int indent_wid = 20;
 constexpr int id_wid = 10;
@@ -77,7 +77,7 @@ void print_total_wealth( const GoodsManager& obj, std::string_view currency ) {
   std::cout << "\n";
 }
 
-void print_good_db( const SQLite::Database& db, const GoodsManager& obj, std::string_view currency = "" ) {
+void print_good_db( const GoodsManager& obj, std::string_view currency = "" ) {
   print_break();
   print_line( headers );
   print_break();
@@ -107,3 +107,4 @@ void display_db_selection() {
   std::cout << " 6. Exit\n";
   std::cout << BOLD( FGRN( ">> " ) );
 }
+}  // namespace GoodsTrack
