@@ -154,7 +154,7 @@ class GoodsManager {
    * @param symbol it is symbol of goods which is defined in yahoo finance website
    * @return json object of values
    */
-  rapidjson::Document get_goods_values_from_yahoo_finance( std::string_view symbol ) const;
+  static rapidjson::Document get_goods_values_from_yahoo_finance( std::string_view symbol );
   static size_t WriteCallback( void* contents, size_t size, size_t nmemb, void* userp );
 };
 

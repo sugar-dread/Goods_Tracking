@@ -71,7 +71,7 @@ GoodsElems GoodsManager::create_goods( std::string_view symbol, double amount ) 
 
     if ( obj.HasMember( "regularMarketPrice" ) ) {
       if ( ( std::string( obj["symbol"].GetString() ) == "SI=F" ) || ( std::string( obj["symbol"].GetString() ) == "GC=F" ) ) {
-        goods.setPrice( obj["regularMarketPrice"].GetDouble() / 31.1034768 );
+        goods.setPrice( obj["regularMarketPrice"].GetDouble() / OUNCE_GRAM );
 
       } else {
         goods.setPrice( obj["regularMarketPrice"].GetDouble() );
@@ -79,7 +79,7 @@ GoodsElems GoodsManager::create_goods( std::string_view symbol, double amount ) 
     }
     if ( obj.HasMember( "regularMarketPrice" ) ) {
       if ( ( std::string( obj["symbol"].GetString() ) == "SI=F" ) || ( std::string( obj["symbol"].GetString() ) == "GC=F" ) ) {
-        goods.setTotal( amount * obj["regularMarketPrice"].GetDouble() / 31.1034768 );
+        goods.setTotal( amount * obj["regularMarketPrice"].GetDouble() / OUNCE_GRAM );
       } else {
         goods.setTotal( amount * obj["regularMarketPrice"].GetDouble() );
       }
@@ -221,7 +221,7 @@ size_t GoodsManager::WriteCallback( void* contents, size_t size, size_t nmemb, v
   return size * nmemb;
 }
 
-rapidjson::Document GoodsManager::get_goods_values_from_yahoo_finance( std::string_view symbol ) const {
+rapidjson::Document GoodsManager::get_goods_values_from_yahoo_finance( std::string_view symbol ) {
   std::string endpoint = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=" + std::string( symbol.data() );
 
   CURL* curl;

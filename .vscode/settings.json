@@ -2,6 +2,7 @@
     "sonarlint.output.showAnalyzerLogs": true,
     "sonarlint.output.showVerboseLogs": true,
     "C_Cpp.enhancedColorization": "enabled",
+    "C_Cpp.intelliSenseEngine": "default",
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.autoAddFileAssociations": true,
     "C_Cpp.autocomplete": "default",
