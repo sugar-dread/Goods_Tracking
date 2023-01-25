@@ -10,6 +10,7 @@
  */
 #pragma once
 
+#include <curl/curl.h>
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
 #include <rapidjson/filereadstream.h>
@@ -81,9 +82,9 @@ class GoodsManager {
    * @param db database data type
    * @param table_name name of the goods table name which is created in database.
    */
-  GoodsManager( SQLite::Database& db, std::string table_name ) : m_Database { db }, m_TableName { std::move( table_name ) } {}
+  GoodsManager( SQLite::Database& db, std::string table_name );
 
-  //~GoodsManager();
+  ~GoodsManager();
 
   /**
    * @brief Add goods to database
@@ -131,30 +132,31 @@ class GoodsManager {
    * @param amount amount of goods
    * @return goods obecjt
    */
-  GoodsElems create_goods( std::string_view symbol, double amount ) const;
+  GoodsElems create_goods( std::string_view symbol, double amount );
 
   /**
    * @brief calcuates the total wealth in terms of given currency
    * @param currency
    * @return returns total wealth in the given currency
    */
-  double calculate_total_wealth( std::string_view currency ) const;
+  double calculate_total_wealth( std::string_view currency );
 
   /**
    * @brief updates prices of goods from yahoo finance
    */
-  void update_goods_prices() const;
+  void update_goods_prices();
 
  private:
   SQLite::Database& m_Database;  //< Reference to the SQLite Database Connection
   std::string m_TableName;
+  CURL* m_Curl;
 
   /**
    * @brief reads goods value according to its symbol from yahoo finance
    * @param symbol it is symbol of goods which is defined in yahoo finance website
    * @return json object of values
    */
-  static rapidjson::Document get_goods_values_from_yahoo_finance( std::string_view symbol );
+  rapidjson::Document get_goods_values_from_yahoo_finance( std::string_view symbol );
   static size_t WriteCallback( void* contents, size_t size, size_t nmemb, void* userp );
 };
 

@@ -10,7 +10,7 @@
  */
 
 #include "goods_track.h"
-#include <curl/curl.h>
+
 #include <iostream>
 #include <sstream>
 
@@ -43,6 +43,19 @@ SQLite::Database open_goods_database( const std::string& file_name ) {
   return db;
 }
 
+GoodsManager::GoodsManager( SQLite::Database& db, std::string table_name ) : m_Database { db }, m_TableName { std::move( table_name ) }, m_Curl { nullptr } {
+  curl_global_init( CURL_GLOBAL_ALL );
+
+  if ( m_Curl = curl_easy_init(); !m_Curl ) {
+    throw SQLite::Exception( "failed to init curl" );
+  }
+}
+
+GoodsManager::~GoodsManager() {
+  curl_easy_cleanup( m_Curl );
+  curl_global_cleanup();
+}
+
 void GoodsManager::add_goods( const GoodsElems& elem ) const {
   if ( !( m_Database.tableExists( m_TableName ) ) ) {
     throw SQLite::Exception( "Table " + m_TableName + "does not exists in database" );
@@ -57,7 +70,7 @@ void GoodsManager::add_goods( const GoodsElems& elem ) const {
   m_Database.exec( add_stmt.str() );
 }
 
-GoodsElems GoodsManager::create_goods( std::string_view symbol, double amount ) const {
+GoodsElems GoodsManager::create_goods( std::string_view symbol, double amount ) {
   auto goods_val = get_goods_values_from_yahoo_finance( symbol.data() );
   GoodsElems goods;
 
@@ -224,30 +237,20 @@ size_t GoodsManager::WriteCallback( void* contents, size_t size, size_t nmemb, v
 rapidjson::Document GoodsManager::get_goods_values_from_yahoo_finance( std::string_view symbol ) {
   std::string endpoint = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=" + std::string( symbol.data() );
 
-  CURL* curl;
   std::string response;
 
-  curl_global_init( CURL_GLOBAL_ALL );
+  curl_easy_setopt( m_Curl, CURLOPT_URL, endpoint.c_str() );
+  curl_easy_setopt( m_Curl, CURLOPT_WRITEFUNCTION, WriteCallback );
+  curl_easy_setopt( m_Curl, CURLOPT_WRITEDATA, &response );
 
-  if ( curl = curl_easy_init(); !curl ) {
-    throw SQLite::Exception( "failed to init curl" );
-  }
-
-  curl_easy_setopt( curl, CURLOPT_URL, endpoint.c_str() );
-  curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, WriteCallback );
-  curl_easy_setopt( curl, CURLOPT_WRITEDATA, &response );
-
-  if ( CURLcode res = curl_easy_perform( curl ); res != CURLE_OK ) {
-    curl_easy_cleanup( curl );
+  if ( CURLcode res = curl_easy_perform( m_Curl ); res != CURLE_OK ) {
+    curl_easy_cleanup( m_Curl );
     curl_global_cleanup();
     throw SQLite::Exception( "Error sending HTTP request: " + std::string( curl_easy_strerror( res ) ) );
   }
 
   char* content_type;
-  curl_easy_getinfo( curl, CURLINFO_CONTENT_TYPE, &content_type );
-
-  curl_easy_cleanup( curl );
-  curl_global_cleanup();
+  curl_easy_getinfo( m_Curl, CURLINFO_CONTENT_TYPE, &content_type );
 
   rapidjson::Document doc;
   doc.SetObject();
@@ -263,7 +266,7 @@ rapidjson::Document GoodsManager::get_goods_values_from_yahoo_finance( std::stri
   return doc;
 }
 
-double GoodsManager::calculate_total_wealth( std::string_view currency ) const {
+double GoodsManager::calculate_total_wealth( std::string_view currency ) {
   double sum {};
 
   std::string ticker {};
@@ -284,7 +287,7 @@ double GoodsManager::calculate_total_wealth( std::string_view currency ) const {
   return sum;
 }
 
-void GoodsManager::update_goods_prices() const {
+void GoodsManager::update_goods_prices() {
   auto gvec = get_all_goods();
 
   std::stringstream update_goods_by_all;

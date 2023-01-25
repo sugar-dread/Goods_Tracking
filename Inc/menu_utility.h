@@ -64,7 +64,7 @@ void print_line_db( const GoodsElems& goods ) {
   std::cout << "\n";
 }
 
-void print_total_wealth( const GoodsManager& obj, std::string_view currency ) {
+void print_total_wealth( GoodsManager& obj, std::string_view currency ) {
   std::locale::global( std::locale( "en_US.UTF-8" ) );
   std::cout.imbue( std::locale() );
   auto total_val = obj.calculate_total_wealth( currency.data() );
@@ -77,7 +77,7 @@ void print_total_wealth( const GoodsManager& obj, std::string_view currency ) {
   std::cout << "\n";
 }
 
-void print_good_db( const GoodsManager& obj, std::string_view currency = "" ) {
+void print_good_db( GoodsManager& obj, std::string_view currency = "" ) {
   print_break();
   print_line( headers );
   print_break();
