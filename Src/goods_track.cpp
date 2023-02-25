@@ -176,12 +176,11 @@ void GoodsManager::update_with_id( int id, double amount ) const {
   }
 
   std::stringstream update_goods_by_id;
-  update_goods_by_id << "UPDATE " << m_TableName << " SET amount=" << amount << ", total='" << std::to_string( amount * get_price ) << "' WHERE id='" << id << "'";
+  update_goods_by_id << "UPDATE " << m_TableName << " SET amount='" << std::to_string( amount ) << "', total='" << std::to_string( amount * get_price ) << "' WHERE id='" << id << "'";
 
   SQLite::Statement queryUpdate { m_Database, update_goods_by_id.str() };
 
   m_Database.exec( update_goods_by_id.str() );
-
   queryCheck.reset();
   queryUpdate.reset();
 }
