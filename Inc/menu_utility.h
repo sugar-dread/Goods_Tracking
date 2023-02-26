@@ -21,34 +21,36 @@ constexpr int currency_wid = name_wid;
 
 constexpr int total_wid = id_wid + name_wid + amount_wid + price_wid + tot_wid + currency_wid + column_size;
 
-void print_break() {
+template <typename T = char>
+void print_break( T c = '-' ) {
   std::cout.width( total_wid );
-  std::cout.fill( '-' );
-  std::cout << '-' << '\n';
+  std::cout.fill( c );
+  std::cout << c << '\n';
   std::cout.fill( ' ' );
 }
 
-void print_line( table_t const& tbl ) {
+template <typename T = char>
+void print_line( table_t const& tbl, T c = '|' ) {
   auto const& [id, name, amount, price, total, currency] = tbl;
 
-  std::cout << "|";
+  std::cout << c;
   std::cout.width( id_wid - 1 );
-  std::cout << id << '|';
+  std::cout << id << c;
 
   std::cout.width( name_wid );
-  std::cout << ( ' ' + name ) << '|';
+  std::cout << ( ' ' + name ) << c;
 
   std::cout.width( amount_wid );
-  std::cout << ( ' ' + amount ) << '|';
+  std::cout << ( ' ' + amount ) << c;
 
   std::cout.width( price_wid );
-  std::cout << ( ' ' + price ) << '|';
+  std::cout << ( ' ' + price ) << c;
 
   std::cout.width( tot_wid );
-  std::cout << ( ' ' + total ) << '|';
+  std::cout << ( ' ' + total ) << c;
 
   std::cout.width( currency_wid );
-  std::cout << ( ' ' + currency ) << '|';
+  std::cout << ( ' ' + currency ) << c;
 
   std::cout << '\n';
 }
