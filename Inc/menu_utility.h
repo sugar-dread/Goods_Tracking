@@ -18,65 +18,57 @@ constexpr int amount_wid = name_wid;
 constexpr int price_wid = name_wid;
 constexpr int tot_wid = name_wid;
 constexpr int currency_wid = name_wid;
-
 constexpr int total_wid = id_wid + name_wid + amount_wid + price_wid + tot_wid + currency_wid + column_size;
 
 template <typename T = char>
 void print_break( T c = '-' ) {
-  std::cout.width( total_wid );
-  std::cout.fill( c );
-  std::cout << c << '\n';
-  std::cout.fill( ' ' );
+  std::cout << std::setw( total_wid + 1 );
+  std::cout << std::setfill( c );
+  std::cout << '\n';
+  std::cout << std::setfill( ' ' );
 }
 
 template <typename T = char>
 void print_line( table_t const& tbl, T c = '|' ) {
   auto const& [id, name, amount, price, total, currency] = tbl;
 
-  std::cout << c;
-  std::cout.width( id_wid - 1 );
-  std::cout << id << c;
-
-  std::cout.width( name_wid );
-  std::cout << ( ' ' + name ) << c;
-
-  std::cout.width( amount_wid );
-  std::cout << ( ' ' + amount ) << c;
-
-  std::cout.width( price_wid );
-  std::cout << ( ' ' + price ) << c;
-
-  std::cout.width( tot_wid );
-  std::cout << ( ' ' + total ) << c;
-
-  std::cout.width( currency_wid );
-  std::cout << ( ' ' + currency ) << c;
-
-  std::cout << '\n';
+  std::cout << c << std::setw( id_wid ) << id;
+  std::cout << c << std::setw( name_wid ) << name;
+  std::cout << c << std::setw( amount_wid ) << amount;
+  std::cout << c << std::setw( price_wid ) << price;
+  std::cout << c << std::setw( tot_wid ) << total;
+  std::cout << c << std::setw( currency_wid - 1 ) << currency;
+  std::cout << c << '\n';
 }
 
-void print_line_db( const GoodsElems& goods ) {
-  std::cout << std::left << "|" << goods.getId() << std::setw( id_wid - 2 ) << std::setfill( ' ' ) << ' ' << '|';
-  std::cout << std::right << std::setw( name_wid ) << goods.getName() << '|';
-  std::cout << std::right << std::setw( amount_wid ) << goods.getAmount() << '|';
-  std::cout << std::right << std::setw( price_wid ) << goods.getPrice() << '|';
-  std::cout << std::right << std::setw( tot_wid ) << goods.getTotal() << '|';
-  std::cout << std::right << std::setw( currency_wid ) << goods.getCurrency() << '|';
+template <typename T = char>
+void print_line_db( const GoodsElems& goods, T c = '|' ) {
+  std::cout << std::left << c << std::setw( id_wid ) << goods.getId();
+  std::cout << std::right << c << std::setw( name_wid ) << goods.getName();
+  std::cout << std::right << c << std::setw( amount_wid ) << goods.getAmount();
+  std::cout << std::right << c << std::setw( price_wid ) << goods.getPrice();
+  std::cout << std::right << c << std::setw( tot_wid ) << goods.getTotal();
+  std::cout << std::right << c << std::setw( currency_wid - 1 ) << goods.getCurrency();
 
-  std::cout << "\n";
+  std::cout << c << "\n";
 }
 
-void print_total_wealth( GoodsManager& obj, std::string_view currency ) {
+template <typename T = char>
+void print_total_wealth( GoodsManager& obj, std::string_view currency, T c = '|' ) {
+  // std::locale default_locale( "" );  // Get the default C++ global locale
+
   std::locale::global( std::locale( "en_US.UTF-8" ) );
   std::cout.imbue( std::locale() );
   auto total_val = obj.calculate_total_wealth( currency.data() );
 
   std::stringstream stmt;
-  stmt << "|Total Wealth (" << currency.data() << ") : " << std::fixed << std::setprecision( 2 ) << total_val;
+  stmt << c << "Total Wealth (" << currency.data() << ") : " << std::fixed << std::setprecision( 2 ) << total_val;
   std::cout << stmt.str();
   std::cout.width( total_wid - stmt.str().size() );
-  std::cout << '|';
-  std::cout << "\n";
+  std::cout << c << "\n";
+
+  // std::locale::global( default_locale );  // Set the global locale back to its original value
+  // std::cout.imbue( std::locale() );       // Imbue the original global locale to cou
 }
 
 void print_good_db( GoodsManager& obj, std::string_view currency = "" ) {
@@ -105,8 +97,9 @@ void display_db_selection() {
   std::cout << " 2. Update stock \n";
   std::cout << " 3. Delete stock \n";
   std::cout << " 4. Update all stocks \n";
-  std::cout << " 5. Show with specific currency \n";
-  std::cout << " 6. Exit\n";
+  std::cout << " 5. Print updated date and amount\n";
+  std::cout << " 6. Show with specific currency \n";
+  std::cout << " 7. Exit\n";
   std::cout << BOLD( FGRN( ">> " ) );
 }
 }  // namespace GoodsTrack

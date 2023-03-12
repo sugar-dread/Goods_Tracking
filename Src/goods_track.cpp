@@ -11,8 +11,10 @@
 
 #include "goods_track.h"
 
+#include <chrono>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 namespace GoodsTrack {
 
@@ -33,11 +35,17 @@ SQLite::Database open_goods_database( const std::string& file_name ) {
 
   SQLite::Database db { getProjectCurrentPath() + "/" + file_name, mode };
 
+  if ( !db.tableExists( "date_updated" ) ) {
+    db.exec( "CREATE TABLE date_updated (id INTEGER PRIMARY KEY, updated_date TEXT, usd_amount DOUBLE)" );
+  }
+
   if ( !exist_flag ) {
     db.exec( "DROP TABLE IF EXISTS goods" );
     db.exec(
         "CREATE TABLE goods (id INTEGER PRIMARY KEY, name TEXT, amount DOUBLE, price DOUBLE, "
         "total DOUBLE, currency TEXT)" );
+    db.exec( "DROP TABLE IF EXISTS date_updated" );
+    db.exec( "CREATE TABLE date_updated (id INTEGER PRIMARY KEY, updated_date TEXT, usd_amount DOUBLE)" );
   }
 
   return db;
@@ -297,6 +305,7 @@ void GoodsManager::update_goods_prices() {
   for ( const auto& elem : gvec ) {
     auto goods_val = get_goods_values_from_yahoo_finance( elem.getName() );
     amount = elem.getAmount();
+
     if ( goods_val["quoteResponse"]["result"].IsArray() ) {
       const rapidjson::Value& obj = goods_val["quoteResponse"]["result"].GetArray()[0];
 
@@ -323,4 +332,42 @@ void GoodsManager::update_goods_prices() {
     }
   }
 }
+
+void GoodsManager::insert_last_updated_amount() {
+  if ( !( m_Database.tableExists( "date_updated" ) ) ) {
+    throw SQLite::Exception( "Table date_updated does not exists in database" );
+  }
+
+  auto current_time = std::chrono::system_clock::now();                               // Get the current time
+  std::time_t current_time_t = std::chrono::system_clock::to_time_t( current_time );  // Convert the time to a time_t object
+  std::tm current_tm = *std::localtime( &current_time_t );                            // Convert the time_t object to a tm struct in local time
+  std::string y = std::to_string( current_tm.tm_year + 1900 );
+  std::string m = std::to_string( current_tm.tm_mon + 1 );
+  std::string d = std::to_string( current_tm.tm_mday );
+  std::string cur_date = y + "-" + m + "-" + d;
+
+  auto total_amount = calculate_total_wealth( "USD" );
+
+  std::stringstream add_stmt;
+  add_stmt.clear();
+  add_stmt << "INSERT INTO date_updated VALUES (NULL, "
+           << "\"" << cur_date << "\", '" << std::to_string( total_amount ) << "')";
+
+  std::cout << add_stmt.str() << "\n";
+  m_Database.exec( add_stmt.str() );
+}
+
+std::vector<std::pair<std::string, double>> GoodsManager::get_updated_dates() const {
+  SQLite::Statement query { m_Database, "SELECT * FROM date_updated" };
+
+  std::vector<std::pair<std::string, double>> pvec;
+
+  while ( query.executeStep() ) {
+    pvec.emplace_back( query.getColumn( 1 ).getText(), query.getColumn( 2 ).getDouble() );
+  }
+
+  query.reset();
+  return pvec;
+}
+
 }  // namespace GoodsTrack

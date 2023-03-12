@@ -7,7 +7,7 @@ using namespace GoodsTrack;
 int main() {
   std::cout << "GCC version: " << __VERSION__ << std::endl;
 
-  std::string db_name { "goods.db" };
+  std::string db_name { "mygoods.db" };
   auto db = open_goods_database( db_name );
   GoodsManager obj( db, "goods" );
 
@@ -60,11 +60,23 @@ int main() {
         }
         case 4: {
           obj.update_goods_prices();
+          obj.insert_last_updated_amount();
+
           std::cout << BOLD( FGRN( "Update " << db_name << " successfully\n" ) );
           break;
         }
 
         case 5: {
+          auto vec = obj.get_updated_dates();
+          print_break( '*' );
+          for ( const auto& elem : vec ) {
+            std::cout << '*' << "Last updated date: " << elem.first << "\t\tTotal Amount: " << elem.second << " USD\n";
+          }
+          print_break( '*' );
+          break;
+        }
+
+        case 6: {
           std::cout << "Please, enter the symbol of currency: ";
           std::string goods_symb;
           std::cin >> goods_symb;
@@ -74,7 +86,7 @@ int main() {
           pass = true;
           break;
         }
-        case 6:
+        case 7:
           std::cout << BOLD( FGRN( "Application is closing...\n" ) );
           return 0;
         default:

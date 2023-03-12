@@ -146,6 +146,18 @@ class GoodsManager {
    */
   void update_goods_prices();
 
+  /**
+   * @brief insert the last updated date and USD amount of goods.
+   *
+   */
+  void insert_last_updated_amount();
+
+  /**
+   * @brief reads updated dates and total amount from db
+   * @return vector of pairs of date and total amount
+   */
+  std::vector<std::pair<std::string, double>> get_updated_dates() const;
+
  private:
   SQLite::Database& m_Database;  //< Reference to the SQLite Database Connection
   std::string m_TableName;
