@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include "goods_track.h"
-#include "menu_utility.h"
+//#include "menu_utility.h"
 
 using namespace GoodsTrack;
 
@@ -34,16 +34,16 @@ TEST_F( GoodsTrackTest, AddGoodsDbTest ) {
   auto db = open_goods_database( "goods.db" );
 
   GoodsManager obj( db, "goods" );
-  obj.add_goods( GoodsElems { 1, "gold", 3, 2200.2, 36000, "TRY" } );
-  obj.add_goods( GoodsElems { 2, "silver", 4, 5200.2, 46000, "TRY" } );
-  obj.add_goods( GoodsElems { 3, "bronz", 5, 2200.2, 56000, "TRY" } );
+  obj.add_goods( Goods { 1, "gold", 3, 2200.2, 36000.0, "TRY" } );
+  obj.add_goods( Goods { 2, "silver", 4, 5200.2, 46000.0, "TRY" } );
+  obj.add_goods( Goods { 3, "bronz", 5, 2200.2, 56000.0, "TRY" } );
 
   auto Goods = obj.get_goods( 1 );
   EXPECT_EQ( Goods.getId(), 1 );
   EXPECT_EQ( Goods.getName(), "gold" );
   EXPECT_EQ( Goods.getAmount(), 3 );
   EXPECT_EQ( Goods.getPrice(), 2200.2 );
-  EXPECT_EQ( Goods.getTotal(), 36000 );
+  EXPECT_EQ( Goods.getTotal(), 36000.0 );
   EXPECT_EQ( Goods.getCurrency(), "TRY" );
 
   Goods = obj.get_goods( 2 );
@@ -51,7 +51,7 @@ TEST_F( GoodsTrackTest, AddGoodsDbTest ) {
   EXPECT_EQ( Goods.getName(), "silver" );
   EXPECT_EQ( Goods.getAmount(), 4 );
   EXPECT_EQ( Goods.getPrice(), 5200.2 );
-  EXPECT_EQ( Goods.getTotal(), 46000 );
+  EXPECT_EQ( Goods.getTotal(), 46000.0 );
   EXPECT_EQ( Goods.getCurrency(), "TRY" );
 
   Goods = obj.get_goods( 3 );
@@ -96,6 +96,7 @@ TEST_F( GoodsTrackTest, DeleteGoodsById ) {
   EXPECT_THROW( obj.get_goods( 1 ), SQLite::Exception );
 }
 
+/*
 TEST_F( GoodsTrackTest, ReadGoodsYahooFinance ) {
   auto db = open_goods_database( "goods.db" );
   GoodsManager obj( db, "goods" );
@@ -137,5 +138,6 @@ TEST_F( GoodsTrackTest, GetTotalWealth ) {
 
   obj.calculate_total_wealth( "USD" );
 
-  print_good_db( obj, "TRY" );
+  // print_good_db( obj, "TRY" );
 }
+ */

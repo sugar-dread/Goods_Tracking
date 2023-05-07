@@ -23,7 +23,6 @@ set(SQLITECPP_EXAMPLE_NAME "")
 add_subdirectory(SQLite3Cpp)
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/GoodsTrack.cmake)
-
 set(BUILD_TESTS "compile GoodsTrack with tests." ON)
 
 if(BUILD_TESTS MATCHES ON)

@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <curl/curl.h>
+
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
 #include <rapidjson/filereadstream.h>
@@ -22,16 +22,13 @@
 #include <filesystem>
 #include <vector>
 #include "SQLiteCpp.h"
+#include "goods.h"
 
 namespace GoodsTrack {
 
 enum class DB_COLUMNS : int { ID = 0, NAME, AMOUNT, PRICE, TOTAL, CURRENCY };
 
 static inline std::string getProjectCurrentPath() { return std::filesystem::current_path().string(); }
-
-constexpr int column_size = 6;
-using table_t = std::array<std::string, column_size>;
-const table_t headers { { "id", "name", "amount", "price", "total", "currency" } };
 
 /**
  * @brief this function returns goods.db database type
@@ -40,39 +37,6 @@ const table_t headers { { "id", "name", "amount", "price", "total", "currency" }
  * @return SQLite::Database db datatype
  */
 SQLite::Database open_goods_database( const std::string& file_name );
-
-class GoodsElems {
- public:
-  GoodsElems() = default;
-  GoodsElems( int id, std::string name, double amount, double price, double total, std::string currency )
-      : m_Id { id }, m_Name { std::move( name ) }, m_Amount { amount }, m_Price { price }, m_Total { total }, m_Currency { std::move( currency ) } {}
-
-  void setId( int id ) { m_Id = id; }
-  int getId() const { return m_Id; }
-
-  void setName( std::string_view name ) { m_Name = name.data(); }
-  std::string getName() const { return m_Name; }
-
-  void setAmount( double amount ) { m_Amount = amount; }
-  double getAmount() const { return m_Amount; }
-
-  void setPrice( double price ) { m_Price = price; }
-  double getPrice() const { return m_Price; }
-
-  void setTotal( double total ) { m_Total = total; }
-  double getTotal() const { return m_Total; }
-
-  void setCurrency( std::string_view currency ) { m_Currency = currency.data(); }
-  std::string getCurrency() const { return m_Currency; }
-
- private:
-  int m_Id {};
-  std::string m_Name {};
-  double m_Amount {};
-  double m_Price {};
-  double m_Total {};
-  std::string m_Currency {};
-};
 
 class GoodsManager {
  public:
@@ -88,17 +52,16 @@ class GoodsManager {
 
   /**
    * @brief Add goods to database
-   *
    * @param elem data structure of goods that be hold in database.
    */
-  void add_goods( const GoodsElems& elem ) const;
+  void add_goods( const Goods<>& elem ) const;
 
   /**
    * @brief read goods values from database
    * @param id key id in database
    * @return goods values in terms of GoodsElems
    */
-  GoodsElems get_goods( int id ) const;
+  Goods<> get_goods( int id ) const;
 
   /**
    * @brief this function reads total number of rows in the database
@@ -124,7 +87,7 @@ class GoodsManager {
    *
    * @return the vector container of goods from db.
    */
-  std::vector<GoodsElems> get_all_goods() const;
+  std::vector<Goods<>> get_all_goods() const;
 
   /**
    * @brief reads goods values from yahoo finance and create a goodselem object
@@ -132,7 +95,7 @@ class GoodsManager {
    * @param amount amount of goods
    * @return goods obecjt
    */
-  GoodsElems create_goods( std::string_view symbol, double amount );
+  Goods<> create_goods( std::string_view symbol, double amount );
 
   /**
    * @brief calcuates the total wealth in terms of given currency
@@ -161,7 +124,7 @@ class GoodsManager {
  private:
   SQLite::Database& m_Database;  //< Reference to the SQLite Database Connection
   std::string m_TableName;
-  CURL* m_Curl;
+
 
   /**
    * @brief reads goods value according to its symbol from yahoo finance

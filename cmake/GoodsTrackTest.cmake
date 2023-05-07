@@ -7,7 +7,10 @@ if(FORCE_COLORED_OUTPUT)
 endif()
 
 set(GoodsTrack_TESTS
-    ${PROJECT_SOURCE_DIR}/Test/GoodsTrack_Test.cpp
+    ${PROJECT_SOURCE_DIR}/Test/Goods_Test.cpp
+    ${PROJECT_SOURCE_DIR}/Test/webConn_Test.cpp
+
+    # update_goods_prices${PROJECT_SOURCE_DIR}/Test/GoodsTrack_Test.cpp
 )
 
 source_group(Test FILES ${GoodsTrack_TESTS})

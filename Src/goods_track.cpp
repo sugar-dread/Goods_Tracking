@@ -64,7 +64,7 @@ GoodsManager::~GoodsManager() {
   curl_global_cleanup();
 }
 
-void GoodsManager::add_goods( const GoodsElems& elem ) const {
+void GoodsManager::add_goods( const Goods<>& elem ) const {
   if ( !( m_Database.tableExists( m_TableName ) ) ) {
     throw SQLite::Exception( "Table " + m_TableName + "does not exists in database" );
   }
@@ -78,9 +78,9 @@ void GoodsManager::add_goods( const GoodsElems& elem ) const {
   m_Database.exec( add_stmt.str() );
 }
 
-GoodsElems GoodsManager::create_goods( std::string_view symbol, double amount ) {
+Goods<> GoodsManager::create_goods( std::string_view symbol, double amount ) {
   auto goods_val = get_goods_values_from_yahoo_finance( symbol.data() );
-  GoodsElems goods;
+  Goods goods;
 
   if ( goods_val["quoteResponse"]["result"].IsArray() ) {
     goods.setAmount( amount );
@@ -114,12 +114,12 @@ GoodsElems GoodsManager::create_goods( std::string_view symbol, double amount ) 
   return goods;
 }
 
-GoodsElems GoodsManager::get_goods( int id ) const {
+Goods<> GoodsManager::get_goods( int id ) const {
   if ( !( m_Database.tableExists( m_TableName ) ) ) {
     throw SQLite::Exception( "Table " + m_TableName + "does not exists in database" );
   }
 
-  GoodsElems obj;
+  Goods obj;
 
   std::stringstream get_goods_by_id;
   get_goods_by_id << "SELECT * FROM " << m_TableName << " WHERE "
@@ -221,10 +221,10 @@ void GoodsManager::delete_with_id( int id ) const {
   m_Database.exec( delete_goods_by_id.str() );
 }
 
-std::vector<GoodsElems> GoodsManager::get_all_goods() const {
+std::vector<Goods<>> GoodsManager::get_all_goods() const {
   SQLite::Statement query { m_Database, ( "SELECT * FROM " + m_TableName ) };
 
-  std::vector<GoodsElems> cvec;
+  std::vector<Goods<>> cvec;
 
   while ( query.executeStep() ) {
     cvec.emplace_back( query.getColumn( static_cast<int>( DB_COLUMNS::ID ) ).getInt(), query.getColumn( static_cast<int>( DB_COLUMNS::NAME ) ).getText(),
@@ -234,43 +234,6 @@ std::vector<GoodsElems> GoodsManager::get_all_goods() const {
 
   query.reset();
   return cvec;
-}
-
-size_t GoodsManager::WriteCallback( void* contents, size_t size, size_t nmemb, void* userp ) {
-  ( (std::string*)userp )->append( (char*)contents, size * nmemb );
-  return size * nmemb;
-}
-
-rapidjson::Document GoodsManager::get_goods_values_from_yahoo_finance( std::string_view symbol ) {
-  std::string endpoint = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=" + std::string( symbol.data() );
-
-  std::string response;
-
-  curl_easy_setopt( m_Curl, CURLOPT_URL, endpoint.c_str() );
-  curl_easy_setopt( m_Curl, CURLOPT_WRITEFUNCTION, WriteCallback );
-  curl_easy_setopt( m_Curl, CURLOPT_WRITEDATA, &response );
-
-  if ( CURLcode res = curl_easy_perform( m_Curl ); res != CURLE_OK ) {
-    curl_easy_cleanup( m_Curl );
-    curl_global_cleanup();
-    throw SQLite::Exception( "Error sending HTTP request: " + std::string( curl_easy_strerror( res ) ) );
-  }
-
-  char* content_type;
-  curl_easy_getinfo( m_Curl, CURLINFO_CONTENT_TYPE, &content_type );
-
-  rapidjson::Document doc;
-  doc.SetObject();
-
-  if ( doc.Parse( response.c_str() ).HasParseError() ) {
-    throw SQLite::Exception( "there is no valid json file for " + std::string( symbol.data() ) );
-  }
-
-  if ( doc["quoteResponse"]["result"].Empty() ) {
-    throw SQLite::Exception( std::string( symbol.data() ) + " is not valid. PLEASE Check symbol from https://finance.yahoo.com/" );
-  }
-
-  return doc;
 }
 
 double GoodsManager::calculate_total_wealth( std::string_view currency ) {

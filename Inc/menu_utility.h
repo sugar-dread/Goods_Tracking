@@ -11,6 +11,7 @@
 
 namespace GoodsTrack {
 
+constexpr int column_size = 6;
 constexpr int indent_wid = 20;
 constexpr int id_wid = 10;
 constexpr int name_wid = 15;
@@ -19,6 +20,9 @@ constexpr int price_wid = name_wid;
 constexpr int tot_wid = name_wid;
 constexpr int currency_wid = name_wid;
 constexpr int total_wid = id_wid + name_wid + amount_wid + price_wid + tot_wid + currency_wid + column_size;
+
+using table_t = std::array<std::string, column_size>;
+const table_t headers { { "id", "name", "amount", "price", "total", "currency" } };
 
 template <typename T = char>
 void print_break( T c = '-' ) {
@@ -42,7 +46,7 @@ void print_line( table_t const& tbl, T c = '|' ) {
 }
 
 template <typename T = char>
-void print_line_db( const GoodsElems& goods, T c = '|' ) {
+void print_line_db( const Goods<>& goods, T c = '|' ) {
   std::cout << std::left << c << std::setw( id_wid ) << goods.getId();
   std::cout << std::right << c << std::setw( name_wid ) << goods.getName();
   std::cout << std::right << c << std::setw( amount_wid ) << goods.getAmount();
