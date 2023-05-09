@@ -46,7 +46,7 @@ void print_line( table_t const& tbl, T c = '|' ) {
 }
 
 template <typename T = char>
-void print_line_db( const Goods<>& goods, T c = '|' ) {
+void print_line_db( const Goods& goods, T c = '|' ) {
   std::cout << std::left << c << std::setw( id_wid ) << goods.getId();
   std::cout << std::right << c << std::setw( name_wid ) << goods.getName();
   std::cout << std::right << c << std::setw( amount_wid ) << goods.getAmount();
@@ -59,8 +59,6 @@ void print_line_db( const Goods<>& goods, T c = '|' ) {
 
 template <typename T = char>
 void print_total_wealth( GoodsManager& obj, std::string_view currency, T c = '|' ) {
-  // std::locale default_locale( "" );  // Get the default C++ global locale
-
   std::locale::global( std::locale( "en_US.UTF-8" ) );
   std::cout.imbue( std::locale() );
   auto total_val = obj.calculate_total_wealth( currency.data() );
@@ -70,9 +68,6 @@ void print_total_wealth( GoodsManager& obj, std::string_view currency, T c = '|'
   std::cout << stmt.str();
   std::cout.width( total_wid - stmt.str().size() );
   std::cout << c << "\n";
-
-  // std::locale::global( default_locale );  // Set the global locale back to its original value
-  // std::cout.imbue( std::locale() );       // Imbue the original global locale to cou
 }
 
 void print_good_db( GoodsManager& obj, std::string_view currency = "" ) {

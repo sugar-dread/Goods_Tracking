@@ -10,19 +10,12 @@
  */
 #pragma once
 
-
-#include <rapidjson/document.h>
-#include <rapidjson/error/en.h>
-#include <rapidjson/filereadstream.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/schema.h>
 #include <array>
 #include <filesystem>
 #include <vector>
 #include "SQLiteCpp.h"
 #include "goods.h"
+#include "webconn.h"
 
 namespace GoodsTrack {
 
@@ -46,22 +39,20 @@ class GoodsManager {
    * @param db database data type
    * @param table_name name of the goods table name which is created in database.
    */
-  GoodsManager( SQLite::Database& db, std::string table_name );
-
-  ~GoodsManager();
+  GoodsManager( SQLite::Database& db, std::string table_name ) : m_Database { db }, m_TableName { std::move( table_name ) } {}
 
   /**
    * @brief Add goods to database
    * @param elem data structure of goods that be hold in database.
    */
-  void add_goods( const Goods<>& elem ) const;
+  void add_goods( const Goods& elem ) const;
 
   /**
    * @brief read goods values from database
    * @param id key id in database
    * @return goods values in terms of GoodsElems
    */
-  Goods<> get_goods( int id ) const;
+  Goods get_goods( int id ) const;
 
   /**
    * @brief this function reads total number of rows in the database
@@ -87,7 +78,7 @@ class GoodsManager {
    *
    * @return the vector container of goods from db.
    */
-  std::vector<Goods<>> get_all_goods() const;
+  std::vector<Goods> get_all_goods() const;
 
   /**
    * @brief reads goods values from yahoo finance and create a goodselem object
@@ -95,25 +86,25 @@ class GoodsManager {
    * @param amount amount of goods
    * @return goods obecjt
    */
-  Goods<> create_goods( std::string_view symbol, double amount );
+  static Goods create_goods( std::string_view symbol, double amount );
 
   /**
    * @brief calcuates the total wealth in terms of given currency
    * @param currency
    * @return returns total wealth in the given currency
    */
-  double calculate_total_wealth( std::string_view currency );
+  double calculate_total_wealth( std::string_view currency ) const;
 
   /**
    * @brief updates prices of goods from yahoo finance
    */
-  void update_goods_prices();
+  void update_goods_prices() const;
 
   /**
    * @brief insert the last updated date and USD amount of goods.
    *
    */
-  void insert_last_updated_amount();
+  void insert_last_updated_amount() const;
 
   /**
    * @brief reads updated dates and total amount from db
@@ -124,15 +115,6 @@ class GoodsManager {
  private:
   SQLite::Database& m_Database;  //< Reference to the SQLite Database Connection
   std::string m_TableName;
-
-
-  /**
-   * @brief reads goods value according to its symbol from yahoo finance
-   * @param symbol it is symbol of goods which is defined in yahoo finance website
-   * @return json object of values
-   */
-  rapidjson::Document get_goods_values_from_yahoo_finance( std::string_view symbol );
-  static size_t WriteCallback( void* contents, size_t size, size_t nmemb, void* userp );
 };
 
 }  // namespace GoodsTrack

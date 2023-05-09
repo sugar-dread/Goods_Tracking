@@ -51,20 +51,7 @@ SQLite::Database open_goods_database( const std::string& file_name ) {
   return db;
 }
 
-GoodsManager::GoodsManager( SQLite::Database& db, std::string table_name ) : m_Database { db }, m_TableName { std::move( table_name ) }, m_Curl { nullptr } {
-  curl_global_init( CURL_GLOBAL_ALL );
-
-  if ( m_Curl = curl_easy_init(); !m_Curl ) {
-    throw SQLite::Exception( "failed to init curl" );
-  }
-}
-
-GoodsManager::~GoodsManager() {
-  curl_easy_cleanup( m_Curl );
-  curl_global_cleanup();
-}
-
-void GoodsManager::add_goods( const Goods<>& elem ) const {
+void GoodsManager::add_goods( const Goods& elem ) const {
   if ( !( m_Database.tableExists( m_TableName ) ) ) {
     throw SQLite::Exception( "Table " + m_TableName + "does not exists in database" );
   }
@@ -74,47 +61,10 @@ void GoodsManager::add_goods( const Goods<>& elem ) const {
            << "\"" << elem.getName() << "\", '" << std::to_string( elem.getAmount() ) << "', " << elem.getPrice() << ", '" << std::to_string( elem.getTotal() ) << "', "
            << "\"" << elem.getCurrency() << "\")";
 
-  std::cout << add_stmt.str() << "\n";
   m_Database.exec( add_stmt.str() );
 }
 
-Goods<> GoodsManager::create_goods( std::string_view symbol, double amount ) {
-  auto goods_val = get_goods_values_from_yahoo_finance( symbol.data() );
-  Goods goods;
-
-  if ( goods_val["quoteResponse"]["result"].IsArray() ) {
-    goods.setAmount( amount );
-    const rapidjson::Value& obj = goods_val["quoteResponse"]["result"].GetArray()[0];
-
-    if ( obj.HasMember( "symbol" ) ) {
-      goods.setName( obj["symbol"].GetString() );
-    }
-
-    if ( obj.HasMember( "regularMarketPrice" ) ) {
-      if ( ( std::string( obj["symbol"].GetString() ) == "SI=F" ) || ( std::string( obj["symbol"].GetString() ) == "GC=F" ) ) {
-        goods.setPrice( obj["regularMarketPrice"].GetDouble() / OUNCE_GRAM );
-
-      } else {
-        goods.setPrice( obj["regularMarketPrice"].GetDouble() );
-      }
-    }
-    if ( obj.HasMember( "regularMarketPrice" ) ) {
-      if ( ( std::string( obj["symbol"].GetString() ) == "SI=F" ) || ( std::string( obj["symbol"].GetString() ) == "GC=F" ) ) {
-        goods.setTotal( amount * obj["regularMarketPrice"].GetDouble() / OUNCE_GRAM );
-      } else {
-        goods.setTotal( amount * obj["regularMarketPrice"].GetDouble() );
-      }
-    }
-
-    if ( obj.HasMember( "currency" ) ) {
-      goods.setCurrency( obj["currency"].GetString() );
-    }
-  }
-
-  return goods;
-}
-
-Goods<> GoodsManager::get_goods( int id ) const {
+Goods GoodsManager::get_goods( int id ) const {
   if ( !( m_Database.tableExists( m_TableName ) ) ) {
     throw SQLite::Exception( "Table " + m_TableName + "does not exists in database" );
   }
@@ -145,6 +95,11 @@ Goods<> GoodsManager::get_goods( int id ) const {
   }
   queryCheck.reset();
   return obj;
+}
+
+Goods GoodsManager::create_goods( std::string_view symbol, double amount ) {
+  auto [price, currency] = WebConn {}( symbol );
+  return Goods { 0, symbol.data(), amount, price, amount * price, currency };
 }
 
 int GoodsManager::get_row_number() const {
@@ -221,10 +176,10 @@ void GoodsManager::delete_with_id( int id ) const {
   m_Database.exec( delete_goods_by_id.str() );
 }
 
-std::vector<Goods<>> GoodsManager::get_all_goods() const {
+std::vector<Goods> GoodsManager::get_all_goods() const {
   SQLite::Statement query { m_Database, ( "SELECT * FROM " + m_TableName ) };
 
-  std::vector<Goods<>> cvec;
+  std::vector<Goods> cvec;
 
   while ( query.executeStep() ) {
     cvec.emplace_back( query.getColumn( static_cast<int>( DB_COLUMNS::ID ) ).getInt(), query.getColumn( static_cast<int>( DB_COLUMNS::NAME ) ).getText(),
@@ -236,7 +191,7 @@ std::vector<Goods<>> GoodsManager::get_all_goods() const {
   return cvec;
 }
 
-double GoodsManager::calculate_total_wealth( std::string_view currency ) {
+double GoodsManager::calculate_total_wealth( std::string_view currency ) const {
   double sum {};
 
   std::string ticker {};
@@ -244,9 +199,7 @@ double GoodsManager::calculate_total_wealth( std::string_view currency ) {
   for ( auto gvec = get_all_goods(); const auto& elem : gvec ) {
     ticker = ( currency.data() + elem.getCurrency() + "=X" );
     if ( elem.getCurrency() != currency.data() ) {
-      auto goods_val = get_goods_values_from_yahoo_finance( ticker );
-      double currency_price = goods_val["quoteResponse"]["result"].GetArray()[0]["regularMarketPrice"].GetDouble();
-
+      auto currency_price = WebConn {}( ticker ).first;
       sum += ( elem.getTotal() / currency_price );
     } else {
       sum += elem.getTotal();
@@ -257,7 +210,7 @@ double GoodsManager::calculate_total_wealth( std::string_view currency ) {
   return sum;
 }
 
-void GoodsManager::update_goods_prices() {
+void GoodsManager::update_goods_prices() const {
   auto gvec = get_all_goods();
 
   std::stringstream update_goods_by_all;
@@ -266,37 +219,22 @@ void GoodsManager::update_goods_prices() {
   double amount {};
 
   for ( const auto& elem : gvec ) {
-    auto goods_val = get_goods_values_from_yahoo_finance( elem.getName() );
+    price = WebConn {}( elem.getName() ).first;
     amount = elem.getAmount();
 
-    if ( goods_val["quoteResponse"]["result"].IsArray() ) {
-      const rapidjson::Value& obj = goods_val["quoteResponse"]["result"].GetArray()[0];
-
-      if ( obj.HasMember( elem.getName().c_str() ) ) {
-        throw SQLite::Exception( "there is no valid symbol " + elem.getName() );
-      }
-
-      if ( obj.HasMember( "regularMarketPrice" ) ) {
-        if ( ( std::string( obj["symbol"].GetString() ) == "SI=F" ) || ( std::string( obj["symbol"].GetString() ) == "GC=F" ) ) {
-          price = obj["regularMarketPrice"].GetDouble() / OUNCE_GRAM;
-        } else {
-          price = obj["regularMarketPrice"].GetDouble();
-        }
-      }
-
-      if ( obj.HasMember( elem.getCurrency().c_str() ) ) {
-        throw SQLite::Exception( "there is no valid currency " + elem.getCurrency() );
-      }
-      update_goods_by_all << "UPDATE " << m_TableName << " SET price=" << price << ", total='" << std::to_string( amount * price ) << "' WHERE id='" << elem.getId() << "'";
-
-      m_Database.exec( update_goods_by_all.str() );
-      update_goods_by_all.str( "" );
-      update_goods_by_all.clear();
+    if ( ( elem.getName() == "SI=F" ) || ( elem.getName() == "GC=F" ) ) {
+      price = price / OUNCE_GRAM;
     }
+
+    update_goods_by_all << "UPDATE " << m_TableName << " SET price=" << price << ", total='" << std::to_string( amount * price ) << "' WHERE id='" << elem.getId() << "'";
+
+    m_Database.exec( update_goods_by_all.str() );
+    update_goods_by_all.str( "" );
+    update_goods_by_all.clear();
   }
 }
 
-void GoodsManager::insert_last_updated_amount() {
+void GoodsManager::insert_last_updated_amount() const {
   if ( !( m_Database.tableExists( "date_updated" ) ) ) {
     throw SQLite::Exception( "Table date_updated does not exists in database" );
   }

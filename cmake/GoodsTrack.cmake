@@ -8,8 +8,7 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 
 set(GoodsTrack_SRC
     ${PROJECT_SOURCE_DIR}/Src/webconn.cpp
-
-    # ${PROJECT_SOURCE_DIR}/Src/goods_track.cpp
+    ${PROJECT_SOURCE_DIR}/Src/goods_track.cpp
 )
 
 source_group(Src FILES ${GoodsTrack_SRC})
@@ -17,11 +16,9 @@ source_group(Src FILES ${GoodsTrack_SRC})
 set(GoodsTrack_INC
     ${PROJECT_SOURCE_DIR}/Inc/goods.h
     ${PROJECT_SOURCE_DIR}/Inc/webconn.h
-
-    # ${PROJECT_SOURCE_DIR}/Inc/goods_track.h
-
-    # ${PROJECT_SOURCE_DIR}/Inc/menu_utility.h
-    # ${PROJECT_SOURCE_DIR}/Inc/colorprint.h
+    ${PROJECT_SOURCE_DIR}/Inc/goods_track.h
+    ${PROJECT_SOURCE_DIR}/Inc/menu_utility.h
+    ${PROJECT_SOURCE_DIR}/Inc/colorprint.h
 )
 
 source_group(Inc FILES ${GoodsTrack_INC})

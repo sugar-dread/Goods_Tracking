@@ -1,6 +1,5 @@
 #include "webconn.h"
 #include <gtest/gtest.h>
-#include <iostream>
 
 using namespace GoodsTrack;
 
@@ -24,4 +23,7 @@ TEST_F( WebConnTest, ReadStockPrice ) {
   EXPECT_THROW( WebConn {}( "AAPLLLL" ), SQLite::Exception );
   EXPECT_NO_THROW( WebConn {}( "TSLA" ) );
   EXPECT_THROW( WebConn {}( "TTTTTSLA" ), SQLite::Exception );
+
+  EXPECT_EQ( "USD", WebConn {}( "PLTR" ).second );
+  EXPECT_EQ( "TRY", WebConn {}( "RYGYO.IS" ).second );
 }

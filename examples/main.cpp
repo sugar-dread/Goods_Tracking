@@ -33,7 +33,7 @@ int main() {
           std::cout << "Please, enter the amount for " << goods_symb << " : ";
           double goods_amount {};
           std::cin >> goods_amount;
-          obj.add_goods( obj.create_goods( goods_symb, goods_amount ) );
+          obj.add_goods( GoodsManager::create_goods( goods_symb, goods_amount ) );
           std::cout << BOLD( FGRN( "Added to " << db_name << " database\n" ) );
           break;
         }
@@ -69,8 +69,8 @@ int main() {
         case 5: {
           auto vec = obj.get_updated_dates();
           print_break( '*' );
-          for ( const auto& elem : vec ) {
-            std::cout << '*' << "Last updated date: " << elem.first << "\t\tTotal Amount: " << elem.second << " USD\n";
+          for ( const auto& [date, amount] : vec ) {
+            std::cout << '*' << "Last updated date: " << date << "\t\tTotal Amount: " << amount << " USD\n";
           }
           print_break( '*' );
           break;

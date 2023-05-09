@@ -34,14 +34,14 @@ TEST_F( GoodsTrackTest, AddGoodsDbTest ) {
   auto db = open_goods_database( "goods.db" );
 
   GoodsManager obj( db, "goods" );
-  obj.add_goods( Goods { 1, "gold", 3, 2200.2, 36000.0, "TRY" } );
-  obj.add_goods( Goods { 2, "silver", 4, 5200.2, 46000.0, "TRY" } );
-  obj.add_goods( Goods { 3, "bronz", 5, 2200.2, 56000.0, "TRY" } );
+  obj.add_goods( Goods { 1, "gold", 3.0, 2200.2, 36000.0, "TRY" } );
+  obj.add_goods( Goods { 2, "silver", 4.0, 5200.2, 46000.0, "TRY" } );
+  obj.add_goods( Goods { 3, "bronz", 5.0, 2200.2, 56000.0, "TRY" } );
 
   auto Goods = obj.get_goods( 1 );
   EXPECT_EQ( Goods.getId(), 1 );
   EXPECT_EQ( Goods.getName(), "gold" );
-  EXPECT_EQ( Goods.getAmount(), 3 );
+  EXPECT_EQ( Goods.getAmount(), 3.0 );
   EXPECT_EQ( Goods.getPrice(), 2200.2 );
   EXPECT_EQ( Goods.getTotal(), 36000.0 );
   EXPECT_EQ( Goods.getCurrency(), "TRY" );
@@ -49,7 +49,7 @@ TEST_F( GoodsTrackTest, AddGoodsDbTest ) {
   Goods = obj.get_goods( 2 );
   EXPECT_EQ( Goods.getId(), 2 );
   EXPECT_EQ( Goods.getName(), "silver" );
-  EXPECT_EQ( Goods.getAmount(), 4 );
+  EXPECT_EQ( Goods.getAmount(), 4.0 );
   EXPECT_EQ( Goods.getPrice(), 5200.2 );
   EXPECT_EQ( Goods.getTotal(), 46000.0 );
   EXPECT_EQ( Goods.getCurrency(), "TRY" );
@@ -57,7 +57,7 @@ TEST_F( GoodsTrackTest, AddGoodsDbTest ) {
   Goods = obj.get_goods( 3 );
   EXPECT_EQ( Goods.getId(), 3 );
   EXPECT_EQ( Goods.getName(), "bronz" );
-  EXPECT_EQ( Goods.getAmount(), 5 );
+  EXPECT_EQ( Goods.getAmount(), 5.0 );
   EXPECT_EQ( Goods.getPrice(), 2200.2 );
   EXPECT_EQ( Goods.getTotal(), 56000 );
   EXPECT_EQ( Goods.getCurrency(), "TRY" );
@@ -96,33 +96,32 @@ TEST_F( GoodsTrackTest, DeleteGoodsById ) {
   EXPECT_THROW( obj.get_goods( 1 ), SQLite::Exception );
 }
 
-/*
 TEST_F( GoodsTrackTest, ReadGoodsYahooFinance ) {
   auto db = open_goods_database( "goods.db" );
   GoodsManager obj( db, "goods" );
 
-  obj.add_goods( obj.create_goods( "PLTR", 500 ) );
+  obj.add_goods( GoodsManager::create_goods( "PLTR", 500 ) );
   auto Goods = obj.get_goods( 4 );
   EXPECT_EQ( Goods.getId(), 4 );
   EXPECT_EQ( Goods.getName(), "PLTR" );
   EXPECT_EQ( Goods.getAmount(), 500 );
   EXPECT_EQ( Goods.getCurrency(), "USD" );
 
-  obj.add_goods( obj.create_goods( "RYGYO.IS", 501 ) );
+  obj.add_goods( GoodsManager::create_goods( "RYGYO.IS", 501 ) );
   Goods = obj.get_goods( 5 );
   EXPECT_EQ( Goods.getId(), 5 );
   EXPECT_EQ( Goods.getName(), "RYGYO.IS" );
   EXPECT_EQ( Goods.getAmount(), 501 );
   EXPECT_EQ( Goods.getCurrency(), "TRY" );
 
-  obj.add_goods( obj.create_goods( "GC=F", 1 ) );
+  obj.add_goods( GoodsManager::create_goods( "GC=F", 1 ) );
   Goods = obj.get_goods( 6 );
   EXPECT_EQ( Goods.getId(), 6 );
   EXPECT_EQ( Goods.getName(), "GC=F" );
   EXPECT_EQ( Goods.getAmount(), 1 );
   EXPECT_EQ( Goods.getCurrency(), "USD" );
 
-  obj.add_goods( obj.create_goods( "SI=F", 1 ) );
+  obj.add_goods( GoodsManager::create_goods( "SI=F", 1 ) );
   Goods = obj.get_goods( 7 );
   EXPECT_EQ( Goods.getId(), 7 );
   EXPECT_EQ( Goods.getName(), "SI=F" );
@@ -140,4 +139,3 @@ TEST_F( GoodsTrackTest, GetTotalWealth ) {
 
   // print_good_db( obj, "TRY" );
 }
- */

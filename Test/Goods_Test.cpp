@@ -18,7 +18,7 @@ void GoodsTest::SetUpTestCase() {}
 void GoodsTest::TearDownTestCase() {}
 
 TEST_F( GoodsTest, CreateGoods ) {
-  Goods obj { 1, "gold", 3, 2200.2, 36000.0, "TRY" };
+  Goods obj { 1, "gold", 3.0, 2200.2, 36000.0, "TRY" };
 
   EXPECT_EQ( obj.getId(), 1 );
   EXPECT_EQ( obj.getName(), "gold" );
@@ -29,7 +29,7 @@ TEST_F( GoodsTest, CreateGoods ) {
 }
 
 TEST_F( GoodsTest, SetGetGoods ) {
-  Goods obj { 1, "gold", 3, 2200.2, 36000.0, "TRY" };
+  Goods obj { 1, "gold", 3.0, 2200.2, 36000.0, "TRY" };
 
   obj.setId( 2 );
   EXPECT_EQ( obj.getId(), 2 );
@@ -37,8 +37,8 @@ TEST_F( GoodsTest, SetGetGoods ) {
   obj.setName( "silver" );
   EXPECT_EQ( obj.getName(), "silver" );
 
-  obj.setAmount( 5 );
-  EXPECT_EQ( obj.getAmount(), 5 );
+  obj.setAmount( 5.0 );
+  EXPECT_EQ( obj.getAmount(), 5.0 );
 
   obj.setPrice( 25.56 );
   EXPECT_EQ( obj.getPrice(), 25.56 );

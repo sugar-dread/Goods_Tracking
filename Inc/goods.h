@@ -12,7 +12,6 @@
 #include <string>
 
 namespace GoodsTrack {
-template <typename T = double>
 class Goods {
  public:
   Goods() = default;
@@ -27,7 +26,7 @@ class Goods {
    * @param total shows the total price of the goods
    * @param currency shows the currency of the goods
    */
-  Goods( int id, std::string name, int amount, T price, T total, std::string currency )
+  Goods( int id, std::string name, double amount, double price, double total, std::string currency )
       : m_Id { id }, m_Name { std::move( name ) }, m_Amount { amount }, m_Price { price }, m_Total { total }, m_Currency { std::move( currency ) } {}
 
   /**
@@ -57,37 +56,37 @@ class Goods {
    * @param amount amount of the goods
    */
 
-  void setAmount( int amount ) { m_Amount = amount; }
+  void setAmount( double amount ) { m_Amount = amount; }
 
   /**
    * @brief Get the Amount of the goods
    * @return double amount of the goods
    */
-  int getAmount() const { return m_Amount; }
+  double getAmount() const { return m_Amount; }
 
   /**
    * @brief set the price of the goods
    * @param price the price of the goods
    */
 
-  void setPrice( T price ) { m_Price = price; }
+  void setPrice( double price ) { m_Price = price; }
   /**
    * @brief get the price of the goods
    * @return the price of the goods
    */
 
-  T getPrice() const { return m_Price; }
+  double getPrice() const { return m_Price; }
   /**
    * @brief
    * @param total
    */
-  void setTotal( T total ) { m_Total = total; }
+  void setTotal( double total ) { m_Total = total; }
 
   /**
    * @brief get the total amount of the goods
    * @return
    */
-  T getTotal() const { return m_Total; }
+  double getTotal() const { return m_Total; }
 
   /**
    * @brief set the currency of the goods
@@ -104,9 +103,9 @@ class Goods {
  private:
   int m_Id {};
   std::string m_Name {};
-  int m_Amount {};
-  T m_Price {};
-  T m_Total {};
+  double m_Amount {};
+  double m_Price {};
+  double m_Total {};
   std::string m_Currency {};
 };
 

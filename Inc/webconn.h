@@ -12,19 +12,40 @@
 #include <curl/curl.h>
 #include <string>
 #include <string_view>
+#include <utility>
 #include "SQLiteCpp.h"
-#include "goods.h"
 
 namespace GoodsTrack {
+constexpr char endpoint_1[] = "https://query1.finance.yahoo.com/v11/finance/quoteSummary/";
+constexpr char endpoint_2[] = "?modules=price";
+
 class WebConn {
  public:
   WebConn();
 
-  double operator()( std::string_view goodsSymbol );
+  WebConn( const WebConn& other ) = delete;
+  WebConn& operator=( const WebConn& other ) = delete;
+  WebConn( WebConn&& other ) = delete;
+  WebConn& operator=( WebConn&& other ) = delete;
+
+  /**
+   * @brief get the value of the goods
+   *
+   * @param goodsSymbol Yahoo finance symbol name of the goods
+   * @return double price of the goods at that moment in time
+   */
+  std::pair<double, std::string> operator()( std::string_view goodsSymbol );
+
   ~WebConn();
 
  private:
   CURL* m_Curl { nullptr };
+
+  /**
+   * @brief reads goods value according to its symbol from yahoo finance
+   * @param symbol it is symbol of goods which is defined in yahoo finance website
+   * @return json object of values
+   */
   static size_t WriteCallback( void* contents, size_t size, size_t nmemb, void* userp );
 };
 

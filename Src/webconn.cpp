@@ -1,13 +1,7 @@
 #include "webconn.h"
 #include <rapidjson/document.h>
-//#include <rapidjson/error/en.h>
-//#include <rapidjson/filereadstream.h>
-//#include <rapidjson/istreamwrapper.h>
-//#include <rapidjson/prettywriter.h>
-//#include <rapidjson/rapidjson.h>BUILD_TESTS
-//#include <rapidjson/schema.h>
+#include <rapidjson/error/en.h>
 #include <iostream>
-
 
 namespace GoodsTrack {
 
@@ -29,8 +23,8 @@ size_t WebConn::WriteCallback( void* contents, size_t size, size_t nmemb, void* 
   return size * nmemb;
 }
 
-double WebConn::operator()( std::string_view goodsSymbol ) {
-  const std::string endpoint = "https://query1.finance.yahoo.com/v11/finance/quoteSummary/" + std::string { goodsSymbol.data() } + "?modules=price";
+std::pair<double, std::string> WebConn::operator()( std::string_view goodsSymbol ) {
+  const std::string endpoint = std::string { endpoint_1 } + std::string { goodsSymbol.data() } + std::string { endpoint_2 };
   std::string response;
 
   curl_easy_setopt( m_Curl, CURLOPT_URL, endpoint.c_str() );
@@ -53,15 +47,21 @@ double WebConn::operator()( std::string_view goodsSymbol ) {
     throw SQLite::Exception( "there is no valid json file for " + std::string( goodsSymbol.data() ) );
   }
 
+  double price { 0.0 };
+  std::string currency {};
+
   if ( doc.HasMember( "quoteSummary" ) && doc["quoteSummary"].IsObject() && doc["quoteSummary"].HasMember( "result" ) && doc["quoteSummary"]["result"].IsArray() &&
        doc["quoteSummary"]["result"].Size() > 0 && doc["quoteSummary"]["result"][0].IsObject() && doc["quoteSummary"]["result"][0].HasMember( "price" ) &&
        doc["quoteSummary"]["result"][0]["price"].IsObject() && doc["quoteSummary"]["result"][0]["price"].HasMember( "regularMarketPrice" ) &&
        doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"].IsObject() && doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"].HasMember( "raw" ) &&
        doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"]["raw"].IsDouble() ) {
-    return doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"]["raw"].GetDouble();
+    price = doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"]["raw"].GetDouble();
+    currency = doc["quoteSummary"]["result"][0]["price"]["currency"].GetString();
   } else {
     throw SQLite::Exception( "there is error on price JSON : " + std::string( goodsSymbol.data() ) );
   }
+
+  return std::make_pair( price, currency );
 }
 
 };  // namespace GoodsTrack
