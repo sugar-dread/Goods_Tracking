@@ -27,3 +27,16 @@ TEST_F( WebConnTest, ReadStockPrice ) {
   EXPECT_EQ( "USD", WebConn {}( "PLTR" ).second );
   EXPECT_EQ( "TRY", WebConn {}( "RYGYO.IS" ).second );
 }
+
+TEST_F( WebConnTest, ReadStockPriceWithObj ) {
+  WebConn obj {};
+  EXPECT_NO_THROW( obj( "PLTR" ) );
+  EXPECT_THROW( obj( "PLTRRRR" ), SQLite::Exception );
+  EXPECT_NO_THROW( obj( "AAPL" ) );
+  EXPECT_THROW( obj( "AAPLLLL" ), SQLite::Exception );
+  EXPECT_NO_THROW( obj( "TSLA" ) );
+  EXPECT_THROW( obj( "TTTTTSLA" ), SQLite::Exception );
+
+  EXPECT_EQ( "USD", obj( "PLTR" ).second );
+  EXPECT_EQ( "TRY", obj( "RYGYO.IS" ).second );
+}

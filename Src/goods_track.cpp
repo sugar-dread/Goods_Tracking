@@ -195,11 +195,12 @@ double GoodsManager::calculate_total_wealth( std::string_view currency ) const {
   double sum {};
 
   std::string ticker {};
+  WebConn obj {};
 
   for ( auto gvec = get_all_goods(); const auto& elem : gvec ) {
     ticker = ( currency.data() + elem.getCurrency() + "=X" );
     if ( elem.getCurrency() != currency.data() ) {
-      auto currency_price = WebConn {}( ticker ).first;
+      auto currency_price = obj( ticker ).first;
       sum += ( elem.getTotal() / currency_price );
     } else {
       sum += elem.getTotal();
@@ -217,9 +218,10 @@ void GoodsManager::update_goods_prices() const {
 
   double price {};
   double amount {};
+  WebConn obj {};
 
   for ( const auto& elem : gvec ) {
-    price = WebConn {}( elem.getName() ).first;
+    price = obj( elem.getName() ).first;
     amount = elem.getAmount();
 
     if ( ( elem.getName() == "SI=F" ) || ( elem.getName() == "GC=F" ) ) {
