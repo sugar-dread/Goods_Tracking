@@ -24,7 +24,7 @@ size_t WebConn::WriteCallback( void* contents, size_t size, size_t nmemb, void* 
 }
 
 std::pair<double, std::string> WebConn::operator()( std::string_view goodsSymbol ) {
-  const std::string endpoint = std::string { endpoint_1 } + std::string { goodsSymbol.data() } + std::string { endpoint_2 };
+  const std::string endpoint = std::string { endpoint_1 } + std::string { goodsSymbol.data() };
   std::string response;
 
   curl_easy_setopt( m_Curl, CURLOPT_URL, endpoint.c_str() );
@@ -50,13 +50,12 @@ std::pair<double, std::string> WebConn::operator()( std::string_view goodsSymbol
   double price { 0.0 };
   std::string currency {};
 
-  if ( doc.HasMember( "quoteSummary" ) && doc["quoteSummary"].IsObject() && doc["quoteSummary"].HasMember( "result" ) && doc["quoteSummary"]["result"].IsArray() &&
-       doc["quoteSummary"]["result"].Size() > 0 && doc["quoteSummary"]["result"][0].IsObject() && doc["quoteSummary"]["result"][0].HasMember( "price" ) &&
-       doc["quoteSummary"]["result"][0]["price"].IsObject() && doc["quoteSummary"]["result"][0]["price"].HasMember( "regularMarketPrice" ) &&
-       doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"].IsObject() && doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"].HasMember( "raw" ) &&
-       doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"]["raw"].IsDouble() ) {
-    price = doc["quoteSummary"]["result"][0]["price"]["regularMarketPrice"]["raw"].GetDouble();
-    currency = doc["quoteSummary"]["result"][0]["price"]["currency"].GetString();
+  if ( doc.HasMember( "optionChain" ) && doc["optionChain"].IsObject() && doc["optionChain"].HasMember( "result" ) && doc["optionChain"]["result"].IsArray() &&
+       doc["optionChain"]["result"].Size() > 0 && doc["optionChain"]["result"][0].IsObject() && doc["optionChain"]["result"][0].HasMember( "quote" ) &&
+       doc["optionChain"]["result"][0]["quote"].IsObject() && doc["optionChain"]["result"][0]["quote"].HasMember( "regularMarketPrice" ) &&
+       doc["optionChain"]["result"][0]["quote"]["regularMarketPrice"].IsDouble() ) {
+    price = doc["optionChain"]["result"][0]["quote"]["regularMarketPrice"].GetDouble();
+    currency = doc["optionChain"]["result"][0]["quote"]["currency"].GetString();
   } else {
     throw SQLite::Exception( "there is error on price JSON : " + std::string( goodsSymbol.data() ) );
   }

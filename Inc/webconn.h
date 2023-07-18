@@ -16,8 +16,7 @@
 #include "SQLiteCpp.h"
 
 namespace GoodsTrack {
-constexpr char endpoint_1[] = "https://query1.finance.yahoo.com/v11/finance/quoteSummary/";
-constexpr char endpoint_2[] = "?modules=price";
+constexpr char endpoint_1[] = "https://query2.finance.yahoo.com/v7/finance/options/";
 
 class WebConn {
  public:

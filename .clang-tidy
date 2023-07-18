@@ -1,7 +1,7 @@
 ---
 Checks: >
     -*,
-    bugprone",
+    bugprone-*,
     clang-analyzer-*,
     cppcoreguidelines-*,
     google-*,
