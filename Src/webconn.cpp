@@ -50,12 +50,11 @@ std::pair<double, std::string> WebConn::operator()( std::string_view goodsSymbol
   double price { 0.0 };
   std::string currency {};
 
-  if ( doc.HasMember( "optionChain" ) && doc["optionChain"].IsObject() && doc["optionChain"].HasMember( "result" ) && doc["optionChain"]["result"].IsArray() &&
-       doc["optionChain"]["result"].Size() > 0 && doc["optionChain"]["result"][0].IsObject() && doc["optionChain"]["result"][0].HasMember( "quote" ) &&
-       doc["optionChain"]["result"][0]["quote"].IsObject() && doc["optionChain"]["result"][0]["quote"].HasMember( "regularMarketPrice" ) &&
-       doc["optionChain"]["result"][0]["quote"]["regularMarketPrice"].IsDouble() ) {
-    price = doc["optionChain"]["result"][0]["quote"]["regularMarketPrice"].GetDouble();
-    currency = doc["optionChain"]["result"][0]["quote"]["currency"].GetString();
+  if ( doc.HasMember( "chart" ) && doc["chart"].IsObject() && doc["chart"].HasMember( "result" ) && doc["chart"]["result"].IsArray() && doc["chart"]["result"].Size() > 0 &&
+       doc["chart"]["result"][0].IsObject() && doc["chart"]["result"][0].HasMember( "meta" ) && doc["chart"]["result"][0]["meta"].IsObject() &&
+       doc["chart"]["result"][0]["meta"].HasMember( "regularMarketPrice" ) && doc["chart"]["result"][0]["meta"]["regularMarketPrice"].IsDouble() ) {
+    price = doc["chart"]["result"][0]["meta"]["regularMarketPrice"].GetDouble();
+    currency = doc["chart"]["result"][0]["meta"]["currency"].GetString();
   } else {
     throw SQLite::Exception( "there is error on price JSON : " + std::string( goodsSymbol.data() ) );
   }
