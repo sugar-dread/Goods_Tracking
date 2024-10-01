@@ -98,7 +98,7 @@ Goods GoodsManager::get_goods( int id ) const {
 }
 
 Goods GoodsManager::create_goods( std::string_view symbol, double amount ) {
-  auto [price, currency] = WebConn {}( symbol );
+  auto [price, currency] = WebConn {}( symbol, m_Api_key );
   return Goods { 0, symbol.data(), amount, price, amount * price, currency };
 }
 
@@ -200,7 +200,7 @@ double GoodsManager::calculate_total_wealth( std::string_view currency ) const {
   for ( auto gvec = get_all_goods(); const auto& elem : gvec ) {
     ticker = ( currency.data() + elem.getCurrency() + "=X" );
     if ( elem.getCurrency() != currency.data() ) {
-      auto currency_price = obj( ticker ).first;
+      auto currency_price = obj( ticker, m_Api_key ).first;
       sum += ( elem.getTotal() / currency_price );
     } else {
       sum += elem.getTotal();
@@ -221,7 +221,7 @@ void GoodsManager::update_goods_prices() const {
   WebConn obj {};
 
   for ( const auto& elem : gvec ) {
-    price = obj( elem.getName() ).first;
+    price = obj( elem.getName(), m_Api_key ).first;
     amount = elem.getAmount();
 
     if ( ( elem.getName() == "SI=F" ) || ( elem.getName() == "GC=F" ) ) {
@@ -271,6 +271,22 @@ std::vector<std::pair<std::string, double>> GoodsManager::get_updated_dates() co
 
   query.reset();
   return pvec;
+}
+
+std::string GoodsManager::get_api_key() {
+  if ( !( m_Database.tableExists( "api_key" ) ) ) {
+    throw SQLite::Exception( "Table api_key does not exists in database" );
+  }
+
+  SQLite::Statement query { m_Database, "SELECT * FROM api_key WHERE id = 1" };
+
+  std::vector<std::pair<std::string, double>> pvec;
+
+  if ( query.executeStep() ) {
+    return query.getColumn( 1 ).getText();
+  } else {
+    throw SQLite::Exception( "No record found with id = 1 in api_key table" );
+  }
 }
 
 }  // namespace GoodsTrack

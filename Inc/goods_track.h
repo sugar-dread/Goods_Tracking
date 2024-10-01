@@ -39,7 +39,7 @@ class GoodsManager {
    * @param db database data type
    * @param table_name name of the goods table name which is created in database.
    */
-  GoodsManager( SQLite::Database& db, std::string table_name ) : m_Database { db }, m_TableName { std::move( table_name ) } {}
+  GoodsManager( SQLite::Database& db, std::string table_name ) : m_Database { db }, m_TableName { std::move( table_name ) }, m_Api_key { get_api_key() } {}
 
   /**
    * @brief Add goods to database
@@ -86,7 +86,7 @@ class GoodsManager {
    * @param amount amount of goods
    * @return goods obecjt
    */
-  static Goods create_goods( std::string_view symbol, double amount );
+  Goods create_goods( std::string_view symbol, double amount );
 
   /**
    * @brief calcuates the total wealth in terms of given currency
@@ -112,9 +112,16 @@ class GoodsManager {
    */
   std::vector<std::pair<std::string, double>> get_updated_dates() const;
 
+  /**
+   * @brief reads alpha vantage API key
+   * @return API key
+   */
+  std::string get_api_key();
+
  private:
   SQLite::Database& m_Database;  //< Reference to the SQLite Database Connection
   std::string m_TableName;
+  std::string m_Api_key;
 };
 
 }  // namespace GoodsTrack
